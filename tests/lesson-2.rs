@@ -74,7 +74,6 @@ async fn big_request() {
     assert_eq!(&body[..], &bytes[..]);
 }
 
-#[ignore]
 #[tokio::test]
 async fn no_entry() {
     let state = SharedState::default();
