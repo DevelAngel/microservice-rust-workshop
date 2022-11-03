@@ -95,6 +95,6 @@ async fn kv_key_get(Path(key): Path<String>, State(state): State<SharedState>) -
     if let Some(body) = state.db.get(&key) {
         (StatusCode::OK, body.clone())
     } else {
-        (StatusCode::INTERNAL_SERVER_ERROR, Bytes::new())
+        (StatusCode::NOT_FOUND, Bytes::new())
     }
 }
