@@ -39,7 +39,6 @@ async fn basic_db_test() {
     assert_eq!(&body[..], b"Hello World");
 }
 
-#[ignore]
 #[tokio::test]
 async fn big_request() {
     let state = SharedState::default();
