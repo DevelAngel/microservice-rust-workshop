@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate serde_derive;
+
 use std::{
     collections::HashMap,
     sync::{Arc, RwLock},
@@ -20,7 +23,8 @@ pub fn router(state: &SharedState) -> Router<SharedState> {
     Router::with_state(state.clone())
         .route("/", get(hello_world))
         //.route("/hello", get(say_hi_unknown))
-        .route("/hello", get(say_hi_stefan))
+        //.route("/hello", get(say_hi_stefan))
+        .route("/hello", get(say_hi_stefan_2))
 }
 
 async fn hello_world() -> impl IntoResponse {
@@ -38,6 +42,21 @@ async fn say_hi_stefan(Query(param): Query<HashMap<String, String>>) -> impl Int
         name
     } else {
         "Unknown Visitor"
+    };
+    Html(format!("<h1>Hello {name}</h1>"))
+}
+
+#[derive(Deserialize)]
+struct ParamName {
+    name: Option<String>,
+}
+
+#[allow(dead_code)]
+async fn say_hi_stefan_2(Query(param): Query<ParamName>) -> impl IntoResponse {
+    let name = if let Some(name) = param.name {
+        name
+    } else {
+        "Unknown Visitor".to_owned()
     };
     Html(format!("<h1>Hello {name}</h1>"))
 }

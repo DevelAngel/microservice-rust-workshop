@@ -21,3 +21,5 @@ tracing-subscriber = { version = "0.3.16", features = ["env-filter"] }
 hyper = { version = "0.14", features = ["full"] }
 gag = "1.0.0"
 futures = "0.3.25"
+serde = { version = "*" }
+serde_derive = { version = "*" }
