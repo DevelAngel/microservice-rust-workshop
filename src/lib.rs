@@ -8,9 +8,17 @@ use std::{
 
 use axum::{body::Bytes, Router};
 
+// lession-1
+
 use axum::response::{IntoResponse, Html};
 use axum::routing::get;
 use axum::extract::Query;
+
+// lession-2
+
+use axum::extract::{Path, State, RawBody};
+use axum::routing::post;
+use axum::http::StatusCode;
 
 /// Custom type for a shared state
 pub type SharedState = Arc<RwLock<AppState>>;
@@ -25,7 +33,10 @@ pub fn router(state: &SharedState) -> Router<SharedState> {
         //.route("/hello", get(say_hi_unknown))
         //.route("/hello", get(say_hi_stefan))
         .route("/hello", get(say_hi_stefan_2))
+        .route("/kv/:key", get(kv_key_get).post(kv_key_post))
 }
+
+// lession-1
 
 async fn hello_world() -> impl IntoResponse {
     "<h1>Hello Axum</h1>"
@@ -59,4 +70,20 @@ async fn say_hi_stefan_2(Query(param): Query<ParamName>) -> impl IntoResponse {
         "Unknown Visitor".to_owned()
     };
     Html(format!("<h1>Hello {name}</h1>"))
+}
+
+// lession-2
+
+async fn kv_key_post(Path(key): Path<String>, State(state): State<SharedState>, body: Bytes) {
+    let mut state = state.write().unwrap();
+    state.db.insert(key, body);
+}
+
+async fn kv_key_get(Path(key): Path<String>, State(state): State<SharedState>) -> impl IntoResponse {
+    let state = state.read().unwrap();
+    if let Some(body) = state.db.get(&key) {
+        (StatusCode::OK, body.clone())
+    } else {
+        (StatusCode::INTERNAL_SERVER_ERROR, Bytes::new())
+    }
 }
