@@ -77,11 +77,13 @@ async fn say_hi_stefan_2(Query(param): Query<ParamName>) -> impl IntoResponse {
 
 // lession-2
 
+#[allow(dead_code)]
 async fn kv_key_post_simple(Path(key): Path<String>, State(state): State<SharedState>, body: Bytes) {
     let mut state = state.write().unwrap();
     state.db.insert(key, body);
 }
 
+#[allow(dead_code)]
 async fn kv_key_post(Path(key): Path<String>, State(state): State<SharedState>, mut body: BodyStream) {
     while let Some(chunk) = body.next().await {
         let mut state = state.write().unwrap();
