@@ -16,9 +16,12 @@ use axum::extract::Query;
 
 // lession-2
 
-use axum::extract::{Path, State, RawBody};
+use axum::extract::{Path, State};
 use axum::routing::post;
 use axum::http::StatusCode;
+
+use axum::extract::BodyStream;
+use futures::StreamExt;
 
 /// Custom type for a shared state
 pub type SharedState = Arc<RwLock<AppState>>;
@@ -74,9 +77,17 @@ async fn say_hi_stefan_2(Query(param): Query<ParamName>) -> impl IntoResponse {
 
 // lession-2
 
-async fn kv_key_post(Path(key): Path<String>, State(state): State<SharedState>, body: Bytes) {
+async fn kv_key_post_simple(Path(key): Path<String>, State(state): State<SharedState>, body: Bytes) {
     let mut state = state.write().unwrap();
     state.db.insert(key, body);
+}
+
+async fn kv_key_post(Path(key): Path<String>, State(state): State<SharedState>, mut body: BodyStream) {
+    while let Some(chunk) = body.next().await {
+        let mut state = state.write().unwrap();
+        state.db.insert(key.clone(), chunk.unwrap());
+    }
+
 }
 
 async fn kv_key_get(Path(key): Path<String>, State(state): State<SharedState>) -> impl IntoResponse {
